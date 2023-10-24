@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -22,27 +23,20 @@ public class TimeServlet extends HttpServlet {
         if (query != null) {
             query = query.replace(" ", "+");
         } else {
-            query = "UTC";
+            query = "UTC"; 
+        }
+        ZoneId zoneId = ZoneId.of("UTC");
+        if (query != null && !query.trim().isEmpty()) {
+            if (query.startsWith("UTC+") || query.startsWith("UTC-")) {
+                int offsetHours = Integer.parseInt(query.substring(3));
+                zoneId = ZoneId.ofOffset("UTC", ZoneOffset.ofHours(offsetHours));
+            } else {
+                zoneId = ZoneId.of(query);
+            }
         }
 
-        TimeZone timeZone;
-        if (query != null && !query.trim().isEmpty()) {
-            if (query.contains("UTC+")) {
-                int offsetHours = Integer.parseInt(query.replace("UTC+", "").trim());
-                timeZone = TimeZone.getTimeZone("GMT+" + offsetHours);
-            } else if (query.contains("UTC-")) {
-                int offsetHours = Integer.parseInt(query.replace("UTC-", "").trim());
-                timeZone = TimeZone.getTimeZone("GMT-" + offsetHours);
-            } else {
-                timeZone = TimeZone.getTimeZone(query);
-            }
-        } else {
-            timeZone = TimeZone.getTimeZone("UTC");
-        }
-        ZoneId zoneId = timeZone.toZoneId();
         ZonedDateTime zonedDateTime = ZonedDateTime.now(zoneId);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'UTC'xxx");
-
         String formattedTime = zonedDateTime.format(formatter);
 
         String htmlResponse = "<html><body>";
