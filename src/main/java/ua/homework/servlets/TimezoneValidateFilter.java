@@ -14,10 +14,14 @@ public class TimezoneValidateFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String timezone = request.getParameter("timezone");
+        if (timezone != null) {
+            timezone = timezone.replace(" ", "+");
+        } else {
+            timezone = "UTC"; // за замовчуванням
+        }
         System.out.println("timezone = " + timezone);
         if (timezone != null && !isValidTimezone(timezone)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid timezone");
+            response.getWriter().write("Invalid timezone. HTTP Status-"+ HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -26,7 +30,7 @@ public class TimezoneValidateFilter extends HttpFilter {
 
     private boolean isValidTimezone(String timezone) {
 
-        if (timezone.startsWith("UTC ") || timezone.startsWith("UTC-")) {
+        if (timezone.startsWith("UTC+") || timezone.startsWith("UTC-")) {
             try {
                 int offset = Integer.parseInt(timezone.substring(4));
 
