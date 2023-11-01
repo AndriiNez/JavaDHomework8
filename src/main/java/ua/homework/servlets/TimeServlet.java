@@ -23,7 +23,7 @@ public class TimeServlet extends HttpServlet {
         if (query != null) {
             query = query.replace(" ", "+");
         } else {
-            query = "UTC"; 
+            query = "UTC";
         }
         ZoneId zoneId = ZoneId.of("UTC");
         if (query != null && !query.trim().isEmpty()) {
